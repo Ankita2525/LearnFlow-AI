@@ -10,7 +10,7 @@ Multi-Agent Systems · LLM Orchestration · Stateful AI · Curriculum Planning �
 
 </div>
 
-✨ LearnFlow in one glance
+## ✨ LearnFlow in one glance
 
 <table>
 <tr>
@@ -39,7 +39,7 @@ One lesson stage at a time
         ↓
 Learner responds → context updates → teaching continues
 
-flowchart LR
+```flowchart LR
     A[Topic] --> B[Task Specifier]
     B --> C[Teaching Assistant]
     C <--> D[Instructor]
@@ -48,7 +48,7 @@ flowchart LR
     E --> F[TeachingGPT]
     F --> G[Interactive Lesson]
     G --> H[Learner Feedback]
-    H --> F
+    H --> F```
 
 🤖 Meet the AI team
 
@@ -113,7 +113,7 @@ Each teaching stage ends with <code>&lt;END_OF_TURN&gt;</code>, returning contro
 
 Multi-agent planning
 
-sequenceDiagram
+```sequenceDiagram
     participant TA as Teaching Assistant
     participant IN as Instructor
     participant SY as Syllabus Synthesizer
@@ -125,14 +125,14 @@ sequenceDiagram
     Note over TA,IN: Up to 5 collaboration turns
     TA->>SY: Full planning history
     IN->>SY: Full planning history
-    SY-->>SY: Build final syllabus
+    SY-->>SY: Build final syllabus```
 
 Stateful teaching
 
-class TeachingGPT(Chain, BaseModel):
+```class TeachingGPT(Chain, BaseModel):
     syllabus: str
     conversation_topic: str
-    conversation_history: List[str]
+    conversation_history: List[str]```
 
 Every instructional turn is conditioned on:
 
@@ -252,7 +252,7 @@ Prompt templates
 </div>
 
 📁 Repository map
-
+```
 LearnFlow-AI/
 ├── diagram.png
 ├── requirements.txt
@@ -265,6 +265,7 @@ LearnFlow-AI/
     ├── generating_syllabus.py # Task refinement + multi-agent planning
     ├── teaching_agent.py      # Stateful TeachingGPT controller
     └── EduGPT.ipynb           # Original experimentation notebook
+    ```
 
 <details>
 <summary><b>🧩 Prompt architecture</b></summary>
@@ -383,7 +384,7 @@ containerized deployment and CI/CD
 <details>
 <summary><b>🚀 Run locally</b></summary>
 <br>
-
+```
 git clone https://github.com/Ankita2525/LearnFlow-AI.git
 cd LearnFlow-AI
 
@@ -397,7 +398,7 @@ Create a .env file:
 OPENAI_API_KEY=your_openai_api_key
 
 Then run:
-
+```
 python src/run.py
 
 </details>
