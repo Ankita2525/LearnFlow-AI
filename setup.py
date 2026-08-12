@@ -9,7 +9,7 @@ with open(Path(BASE_DIR, "requirements.txt")) as file:
 
 # Define our package
 setup(
-    name="EduGPT",
+    name="learnflow-ai",
     version=0.1,
     description="AI instructor using LLMs and Langchain",
     author="hqanhh",
