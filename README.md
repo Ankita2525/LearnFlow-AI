@@ -1,474 +1,259 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=venom&height=260&color=0:00C9A7,45:5B5FEF,100:C850C0&text=LearnFlow%20AI&fontColor=ffffff&fontSize=72&fontAlignY=42&desc=Multi-Agent%20AI%20Tutor%20for%20Personalized%20Learning%20Flows&descAlignY=64&descSize=20&animation=fadeIn" alt="LearnFlow AI banner" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=venom&height=250&color=0:00C9A7,42:5B5FEF,100:C850C0&text=LearnFlow%20AI&fontColor=ffffff&fontSize=72&fontAlignY=41&desc=Multi-Agent%20Learning%20Orchestration%20System&descAlignY=63&descSize=21&animation=fadeIn" alt="LearnFlow AI banner" />
 
-A multi-stage AI learning system that plans curriculum, coordinates specialist agents, and delivers stateful instruction.
+AI agents that plan a curriculum together — then a stateful instructor teaches it one stage at a time.
 
 
 
-Multi-Agent Systems · LLM Orchestration · Stateful Agents · Curriculum Planning · Conversational AI · Prompt Engineering · Human-in-the-Loop · AI System Design
+Multi-Agent Systems · LLM Orchestration · Stateful AI · Curriculum Planning · Conversational AI · Human-in-the-Loop
 
 </div>
 
-🎓 What is LearnFlow AI?
+✨ LearnFlow in one glance
 
-LearnFlow AI is a multi-agent AI learning platform that separates curriculum planning from instruction delivery instead of relying on a single general-purpose chatbot prompt.
+<table>
+<tr>
+<td width="25%" align="center"><b>🎯 Refine</b><br><sub>Turns a broad topic into a focused learning objective</sub></td>
+<td width="25%" align="center"><b>🤝 Plan</b><br><sub>Instructor + Teaching Assistant agents co-design the curriculum</sub></td>
+<td width="25%" align="center"><b>🧩 Synthesize</b><br><sub>A dedicated agent converts the planning dialogue into a syllabus</sub></td>
+<td width="25%" align="center"><b>🧑‍🏫 Teach</b><br><sub>A stateful instructor follows the syllabus using learner context</sub></td>
+</tr>
+</table>
 
-A learner provides a topic, multiple role-specialized LLM agents collaborate to refine the learning objective and construct a syllabus, and a dedicated stateful instructor then teaches from that generated curriculum one stage at a time.
+LearnFlow AI separates planning what to teach from executing how to teach it.
 
-The system is organized as a multi-stage AI workflow:
+🚀 The experience
 
 Learner chooses a topic
         ↓
-AI agents collaboratively design a syllabus
+AI sharpens the learning objective
         ↓
-A dedicated teaching agent is seeded with that syllabus
+Two specialist agents design the curriculum
         ↓
-The learner enters an interactive tutoring conversation
+A synthesis agent creates the syllabus
         ↓
-The instructor teaches one stage at a time
+TeachingGPT takes over
         ↓
-Learner feedback becomes conversation context
+One lesson stage at a time
         ↓
-The lesson continues in syllabus order
-
-Instead of asking a general chatbot to "teach me machine learning," LearnFlow AI first creates a course structure and then constrains the instructor to follow that structure throughout the conversation.
-
-⚡ 30-second engineering overview
-
-AI systems layer
-
-Implementation
-
-Task planning
-
-A dedicated task-specification agent converts a broad topic into a bounded, concrete teaching objective
-
-Multi-agent orchestration
-
-Instructor and Teaching Assistant agents collaborate through role-constrained message loops for up to 5 planning turns
-
-Curriculum synthesis
-
-A separate synthesis agent transforms multi-agent discussion history into a structured syllabus
-
-Stateful execution
-
-TeachingGPT maintains syllabus state, topic state, and accumulated learner/instructor conversation context
-
-Behavioral constraints
-
-Instructor prompts enforce curriculum order, depth requirements, one-stage-at-a-time delivery, and explicit turn boundaries
-
-Human-in-the-loop control
-
-<END_OF_TURN> hands control back to the learner before the system proceeds
-
-Application layer
-
-Gradio exposes independent curriculum-generation and conversational-instructor workflows
-
-Model abstraction
-
-LangChain chains/messages isolate model interaction from controller and UI logic
-
-🏭 Production-minded AI system design
-
-LearnFlow AI is structured around separation of responsibilities rather than one monolithic prompt. Each model call has a narrow role and a defined handoff to the next stage.
-
-User Intent
-   ↓
-Task Specification
-   ↓
-Multi-Agent Planning Loop
-   ↓
-Curriculum Synthesis
-   ↓
-Stateful Instructor Controller
-   ↓
-Human Feedback / Conversation Context
-   └──────────────→ next instructional turn
-
-System boundaries
-
-Boundary
-
-Responsibility
-
-Planner
-
-Refines an underspecified learning request
-
-Role-play agents
-
-Explore and decompose curriculum content from complementary roles
-
-Synthesizer
-
-Converts free-form agent collaboration into the course artifact
-
-Controller
-
-Owns runtime syllabus/topic/history state
-
-Instructor chain
-
-Generates the next teaching step from controlled context
-
-UI
-
-Collects learner input and streams the instructional response
-
-Prompt-level reliability controls already present
-
-The repository uses explicit prompt contracts to reduce uncontrolled model behavior:
-
-role invariants prevent the Instructor and Teaching Assistant from intentionally swapping responsibilities,
-
-planning is bounded by a 5-turn collaboration limit,
-
-the teaching agent is instructed not to reorder the generated syllabus,
-
-each teaching response covers one stage at a time,
-
-<END_OF_TURN> creates an explicit learner-intervention point,
-
-prior conversation history is supplied on subsequent instructional turns.
-
-These are prompt-level controls, not hard runtime guarantees; production validation and automated evaluation are listed later as the next reliability layer.
-
-🧠 Core idea
-
-A useful tutoring system needs more than a strong model response.
-
-LearnFlow AI decomposes the learning workflow into distinct responsibilities:
+Learner responds → context updates → teaching continues
 
 flowchart LR
-    U[Learning Topic] --> TS[Task Specifier]
-    TS --> R[Instructor ↔ Teaching Assistant Role Play]
-    R --> S[Syllabus Synthesizer]
-    S --> C[Generated Curriculum]
-    C --> T[TeachingGPT Controller]
-    T --> I[Interactive AI Instructor]
-    I --> H[Learner Response]
-    H --> M[Conversation Memory]
-    M --> I
+    A[Topic] --> B[Task Specifier]
+    B --> C[Teaching Assistant]
+    C <--> D[Instructor]
+    C --> E[Syllabus Synthesizer]
+    D --> E
+    E --> F[TeachingGPT]
+    F --> G[Interactive Lesson]
+    G --> H[Learner Feedback]
+    H --> F
 
-This architecture creates a clean separation between:
+🤖 Meet the AI team
 
-planning what should be taught
+Agent
 
-structuring the learning path
+Role
 
-delivering the lesson
+Output
 
-maintaining dialogue context
+🎯 Task Specifier
 
-✨ Learning flow
+Removes ambiguity from the learner's request
 
-1. Choose a topic
-
-The user begins with a topic such as:
-
-Reinforcement Learning
-Natural Language Processing
-Neural Networks
-Decision Trees
-Computer Vision
-
-The Gradio interface converts that into an initial task:
-
-Generate a course syllabus to teach the topic: <USER_TOPIC>
-
-2. Expand the learning objective
-
-Before curriculum generation begins, LearnFlow AI uses a dedicated task-specification prompt.
-
-The goal is to convert a broad request into a more concrete teaching objective in 50 words or fewer.
-
-flowchart LR
-    A["Reinforcement Learning"] --> B[Task Specifier Agent]
-    B --> C[More Specific Learning Objective]
-
-This additional planning step gives the downstream agents richer context than the raw topic alone.
-
-3. Generate the syllabus through agent collaboration
-
-The syllabus is not produced by a single prompt.
-
-LearnFlow AI initializes two role-based agents:
-
-👨‍🏫 Instructor
-
-Responsible for:
-
-proposing concrete explanations,
-
-giving examples,
-
-contributing domain expertise,
-
-solving the instructional task.
+Focused teaching objective
 
 🧑‍💻 Teaching Assistant
 
-Responsible for:
+Breaks the objective into curriculum requests
 
-decomposing the task,
+Structured planning instructions
 
-issuing one instructional request at a time,
+👨‍🏫 Instructor
 
-guiding the discussion toward a complete curriculum.
+Produces detailed teaching material and examples
 
-The two agents exchange messages for up to 5 collaboration turns.
+Instructional content
+
+🧩 Syllabus Synthesizer
+
+Compresses the planning exchange
+
+Final course syllabus
+
+🧠 TeachingGPT
+
+Maintains syllabus + topic + conversation state
+
+Next learner-facing teaching stage
+
+The planning conversation is deliberately bounded to 5 turns, so agent collaboration stays controlled instead of running indefinitely.
+
+🧠 What makes it more than a chatbot?
+
+<table>
+<tr>
+<td width="33%" valign="top">
+<b>🧭 Syllabus-guided execution</b><br><br>
+The instructor follows the generated syllabus in order instead of answering each message independently.
+</td>
+<td width="33%" valign="top">
+<b>💾 Explicit runtime state</b><br><br>
+<code>TeachingGPT</code> owns the syllabus, teaching objective, and accumulated conversation history.
+</td>
+<td width="33%" valign="top">
+<b>🧑‍🤝‍🧑 Human-in-the-loop</b><br><br>
+Each teaching stage ends with <code>&lt;END_OF_TURN&gt;</code>, returning control to the learner before the lesson continues.
+</td>
+</tr>
+</table>
+
+⚙️ Under the hood
+
+Multi-agent planning
 
 sequenceDiagram
-    participant TA as Teaching Assistant Agent
-    participant IN as Instructor Agent
+    participant TA as Teaching Assistant
+    participant IN as Instructor
     participant SY as Syllabus Synthesizer
 
-    TA->>IN: Instruction + optional input
-    IN-->>TA: Specific teaching solution
-    TA->>IN: Next instruction
+    TA->>IN: Curriculum request
+    IN-->>TA: Teaching content + examples
+    TA->>IN: Next planning instruction
     IN-->>TA: Expanded content
-    TA->>IN: Continue curriculum design
-    IN-->>TA: Additional instructional material
-    Note over TA,IN: Up to 5 collaborative turns
-    TA->>SY: Full discussion history
-    IN->>SY: Full discussion history
-    SY-->>SY: Synthesize course syllabus
+    Note over TA,IN: Up to 5 collaboration turns
+    TA->>SY: Full planning history
+    IN->>SY: Full planning history
+    SY-->>SY: Build final syllabus
 
-The complete conversation is then passed to a third LLM role whose only responsibility is converting the discussion into a course-syllabus format.
+Stateful teaching
 
-🧑‍🏫 The TeachingGPT controller
+class TeachingGPT(Chain, BaseModel):
+    syllabus: str
+    conversation_topic: str
+    conversation_history: List[str]
 
-Once a syllabus is generated, the application seeds a dedicated teaching controller.
+Every instructional turn is conditioned on:
 
-teaching_agent.seed_agent(syllabus, task)
+Generated syllabus
+      +
+Teaching objective
+      +
+Learner / instructor history
 
-TeachingGPT maintains three pieces of state:
+That makes the generated syllabus an active control input for runtime teaching rather than a one-time piece of text.
 
-syllabus
-conversation_topic
-conversation_history
+🎨 Product flow
 
-The instructor receives all three on every turn.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-That creates a stateful teaching loop:
+📚 Syllabus Builder
 
-flowchart TD
-    S[Generated Syllabus] --> TG[TeachingGPT]
-    T[Topic / Teaching Task] --> TG
-    H[Conversation History] --> TG
+Enter a learning topic
 
-    TG --> P[Instructor Prompt]
-    P --> LLM[LLM Response]
-    LLM --> E["&lt;END_OF_TURN&gt;"]
-    E --> U[User Responds]
-    U --> H
+Run multi-agent curriculum planning
 
-🧭 Syllabus-constrained teaching
+Generate a structured syllabus
 
-The instructor prompt contains several explicit behavioral rules.
+Seed the teaching controller
 
-The model is instructed to:
+</td>
+<td width="50%" valign="top">
 
-follow the syllabus in its original order,
+💬 AI Instructor
 
-avoid skipping or reordering topics,
+Start the lesson
 
-explain concepts beyond syllabus headings,
+Receive one syllabus-aligned teaching stage
 
-include definitions,
+Ask questions or respond
 
-include formulas when relevant,
+Continue with updated conversation context
 
-provide examples,
-
-respond using previous conversation history,
-
-teach only one stage at a time,
-
-allow the learner to respond before continuing.
-
-This turns the syllabus into a lightweight instructional control layer rather than treating it as passive text.
-
-🔄 Human-in-the-loop lesson progression
-
-LearnFlow AI deliberately stops after every teaching stage.
-
-The instructor appends:
-
-<END_OF_TURN>
-
-to signal that control should return to the learner.
-
-The learner's next message is added to the shared conversation history:
-
-Instructor explanation
-        ↓
-<END_OF_TURN>
-        ↓
-Learner question / response
-        ↓
-Conversation history updated
-        ↓
-Next instructor step
-
-This creates a conversational teaching loop instead of generating an entire lesson in one uninterrupted response.
-
-🏗️ Architecture
-
-flowchart TD
-    UI[Gradio Application]
-
-    UI --> TOPIC[Topic Input]
-    TOPIC --> SPEC[Task Specification Agent]
-
-    SPEC --> ASYS[Instructor System Prompt]
-    SPEC --> USYS[Teaching Assistant System Prompt]
-
-    ASYS --> A1[Instructor DiscussAgent]
-    USYS --> A2[Teaching Assistant DiscussAgent]
-
-    A1 <--> A2
-
-    A1 --> HIST[Agent Collaboration History]
-    A2 --> HIST
-
-    HIST --> SUM[Syllabus Summarizer Agent]
-    SUM --> SYL[Generated Syllabus]
-
-    SYL --> CTRL[TeachingGPT Controller]
-    TOPIC --> CTRL
-
-    CTRL --> CHAIN[InstructorConversationChain]
-    CHAIN --> LLM[OpenAI Chat Model]
-    LLM --> RESP[One Teaching Stage]
-    RESP --> CHAT[Gradio Chatbot]
-
-    CHAT --> HUMAN[Learner Message]
-    HUMAN --> MEM[Conversation History]
-    MEM --> CHAIN
-
-🖼️ Original project flow
-
-The repository already includes the original system diagram:
+</td>
+</tr>
+</table>
 
 <div align="center">
-  <img src="diagram.png" width="90%" alt="LearnFlow AI architecture diagram" />
+  <img src="diagram.png" width="84%" alt="LearnFlow AI original architecture diagram" />
 </div>
 
-It captures the same three-stage idea implemented in the source:
+🔬 Engineering signals
 
-1. Define the learning goal → 2. Generate the syllabus → 3. Teach interactively
+Design choice
 
-💬 Product experience
+Why it matters
 
-The Gradio application exposes two tabs.
+Role-specific system prompts
 
-📚 Input Your Information
+Separates planning, instruction, synthesis, and teaching behavior
 
-The learner enters a topic and clicks:
+Bounded agent loop
 
-Build the Bot!!!
+Prevents uncontrolled agent-to-agent generation
 
-The application:
+Explicit state handoff
 
-creates a teaching task,
+Carries the generated syllabus into runtime instruction
 
-generates a syllabus,
+Conversation memory
 
-seeds the teaching agent,
+Keeps teaching responsive to learner follow-up questions
 
-returns the syllabus to the user.
+Human-controlled turn boundary
 
-🤖 AI Instructor
+Avoids generating an entire course in one uninterrupted response
 
-The second tab provides a chatbot interface backed by the stateful teaching controller.
+Workflow/UI separation
 
-Responses are streamed character-by-character into the UI, creating a conversational typing effect.
+Keeps LLM orchestration in dedicated Python modules instead of mixing it into Gradio callbacks
 
-The application also detects OpenAI quota errors and surfaces a clearer user-facing message instead of exposing the raw exception.
+User-facing API error handling
 
-🔬 Multi-agent orchestration in the code
+Converts OpenAI quota failures into readable application messages
 
-LearnFlow AI defines a reusable DiscussAgent abstraction.
+🛠️ Stack
 
-Each agent contains:
+<div align="center">
 
-System role
-      +
-LLM
-      +
-Stored message history
+AI / Orchestration
 
-Its interaction model is simple:
+Application
 
-messages = self.update_messages(input_message)
-output_message = self.model(messages)
-self.update_messages(output_message)
+State / Tooling
 
-This abstraction is reused for:
+LangChain
 
-task specification,
+Gradio Blocks
 
-Instructor role-play,
+Pydantic
 
-Teaching Assistant role-play,
+OpenAI Chat Models
 
-syllabus synthesis.
+Python 3.10+
 
-That keeps the curriculum-generation logic modular instead of hard-coding every LLM call into one function.
+In-memory conversation history
 
-🧩 Prompt-engineering strategy
+Custom DiscussAgent
 
-The project uses several prompt layers, each with a different responsibility.
+Streaming chat UX
 
-Prompt layer
+setuptools / Black / pre-commit
 
-Responsibility
+Custom LangChain Chain
 
-Task Specifier
+Syllabus + instructor flows
 
-Turn a broad learning topic into a concrete teaching objective
+Prompt templates
 
-Instructor Role Prompt
+</div>
 
-Produce detailed instructional solutions
-
-Teaching Assistant Role Prompt
-
-Drive curriculum planning one instruction at a time
-
-Syllabus Synthesizer
-
-Convert collaboration history into a structured course syllabus
-
-Teaching Agent Prompt
-
-Follow the syllabus and conversation history during tutoring
-
-This is closer to a small LLM workflow than a single prompt-response chatbot.
-
-🔬 AI engineering depth
-
-LearnFlow AI demonstrates several patterns that matter in larger AI applications:
-
-Decomposition        → specialized agents instead of one overloaded prompt
-Orchestration        → deterministic Python controls the sequence of LLM roles
-State                → controller-owned syllabus/topic/history across turns
-Context construction → generated curriculum + learner history shape inference
-Guardrails           → explicit role, ordering, and turn-completion policies
-Human oversight      → user receives control between instructional stages
-Modularity           → planning, synthesis, teaching, and presentation remain separate
-
-The important engineering idea is that model capability is wrapped in an application-level control flow. The LLM supplies reasoning and language generation; Python code owns agent sequencing, bounded collaboration, persistent in-process state, and UI handoffs.
-
-📁 Repository structure
+📁 Repository map
 
 LearnFlow-AI/
-├── README.md
 ├── diagram.png
 ├── requirements.txt
 ├── setup.py
@@ -476,246 +261,170 @@ LearnFlow-AI/
 ├── Makefile
 │
 └── src/
-    ├── run.py                  # Gradio application entry point
-    ├── generating_syllabus.py # Multi-agent curriculum generation
+    ├── run.py                  # Gradio app + workflow wiring
+    ├── generating_syllabus.py # Task refinement + multi-agent planning
     ├── teaching_agent.py      # Stateful TeachingGPT controller
-    └── EduGPT.ipynb           # Original notebook prototype
+    └── EduGPT.ipynb           # Original experimentation notebook
 
-🛠 Technology stack
+<details>
+<summary><b>🧩 Prompt architecture</b></summary>
+<br>
 
-Layer
+LearnFlow uses separate prompt contracts instead of one generic system prompt:
 
-Technology
+Prompt
 
-Language
+Responsibility
 
-Python
+Task Specification
 
-LLM framework
+Convert the topic into a focused instructional objective
 
-LangChain
+Instructor Inception
 
-LLM provider
+Define Instructor role and output behavior during planning
 
-OpenAI Chat Models
+Teaching Assistant Inception
 
-Agent architecture
+Define curriculum-decomposition behavior
 
-Role-based DiscussAgent + LLMChain
+Syllabus Synthesis
 
-State/controller
+Convert planning history into a course structure
 
-Pydantic + LangChain Chain
+Teaching Instructor
 
-Prompting
+Follow syllabus order and learner context during tutoring
 
-PromptTemplate, system/human message templates
+</details>
 
-Interface
+<details>
+<summary><b>✅ What is implemented</b></summary>
+<br>
 
-Gradio Blocks
+Topic-driven course generation
 
-Conversation state
+Task-specification LLM stage
 
-In-memory Python history
+Role-based multi-agent curriculum planning
 
-Development tooling
+Bounded Instructor ↔ Teaching Assistant collaboration
 
-Black, pre-commit, setuptools
+Dedicated syllabus synthesis stage
 
-Current pinned dependencies include:
+Stateful TeachingGPT controller
 
-langchain==0.0.208
-openai==0.27.8
-pydantic==1.10.13
-numpy==1.26.4
-gradio==3.41.2
+Conversation-history-aware instruction
 
-🚀 Run locally
+Syllabus-order enforcement through prompt policy
 
-1. Clone the repository
+One-stage-at-a-time teaching flow
 
-git clone https://github.com/Ankita2525/LearnFlow-AI.git
-cd LearnFlow-AI
-
-2. Create a virtual environment
-
-The repository targets Python 3.10+.
-
-python3.10 -m venv venv
-source venv/bin/activate
-
-3. Install dependencies
-
-pip install -r requirements.txt
-
-4. Configure OpenAI
-
-Create a .env file in the repository root:
-
-OPENAI_API_KEY=your_openai_api_key
-
-Do not commit this file.
-
-5. Start the application
-
-python src/run.py
-
-Gradio will print the local application URL in the terminal.
-
-✅ Implemented system capabilities
-
-topic-driven learning flow
-
-LLM-based task specification
-
-role-based multi-agent curriculum planning
-
-Instructor ↔ Teaching Assistant collaboration
-
-bounded multi-turn syllabus generation
-
-dedicated syllabus summarization step
-
-stateful TeachingGPT controller
-
-syllabus-constrained instructional prompting
-
-conversation-history-aware tutoring
-
-one-stage-at-a-time teaching behavior
-
-human-in-the-loop turn boundaries
+<END_OF_TURN> human handoff
 
 Gradio syllabus builder
 
 Gradio conversational instructor
 
-streamed typing-style responses
+Character-by-character response streaming
 
 OpenAI quota error handling
 
-notebook prototype + modular Python implementation
+</details>
 
-🧭 Engineering roadmap
+<details>
+<summary><b>🧭 Production evolution</b></summary>
+<br>
 
-The repository already establishes the multi-agent curriculum-planning and stateful tutoring core. The next engineering phase is to harden that core with the evaluation, persistence, observability, and deployment layers expected from production AI systems.
+The current repository establishes the multi-agent curriculum + stateful tutoring core. Natural next steps include:
 
-Personalized learning
+Reliability & evaluation
 
-learner profiles and skill levels
+structured syllabus schemas
 
-knowledge-state tracking
+prompt regression tests
 
-diagnostic assessments
+agent evaluation datasets
+
+LLM-as-Judge scoring
+
+curriculum-coverage checks
+
+failure / hallucination analysis
+
+Grounding & personalization
+
+RAG over textbooks, notes, and course material
+
+citations and source attribution
+
+learner profiles and mastery tracking
 
 adaptive difficulty
 
 prerequisite detection
 
-mastery-based progression
+Platform hardening
 
-spaced repetition
+persistent session storage
 
-Retrieval and grounding
+authenticated multi-user accounts
 
-RAG over textbooks, lecture notes, papers, or course materials
+asynchronous generation jobs
 
-citations and source attribution
+tracing, latency, token, and cost metrics
 
-vector database-backed course memory
+model routing / fallback policies
 
-syllabus-to-document alignment
+containerized deployment and CI/CD
 
-retrieval evaluation and answer-grounding checks
+</details>
 
-Agent reliability & evaluation
+<details>
+<summary><b>🚀 Run locally</b></summary>
+<br>
 
-structured outputs and schema validation for curriculum artifacts
+git clone https://github.com/Ankita2525/LearnFlow-AI.git
+cd LearnFlow-AI
 
-golden evaluation datasets for syllabus quality and instructional behavior
+python3.10 -m venv .venv
+source .venv/bin/activate
 
-prompt/model regression suites
+pip install -r requirements.txt
 
-LLM-as-judge plus deterministic rubric checks where appropriate
+Create a .env file:
 
-learning-objective coverage and ordering metrics
+OPENAI_API_KEY=your_openai_api_key
 
-hallucination / unsupported-content checks for grounded course modes
+Then run:
 
-failure-mode taxonomy across planning, synthesis, and teaching stages
+python src/run.py
 
-trace-level inspection of agent handoffs and context propagation
+</details>
 
-model/version A/B evaluation before rollout
+💡 Why LearnFlow AI?
 
-Platform architecture & operations
+A generic chatbot answers the next question.
 
-persistent PostgreSQL-backed learner/session state
+LearnFlow AI manages a learning journey.
 
-multi-user authentication and authorization
-
-asynchronous curriculum-generation jobs
-
-provider-independent model gateway / routing layer
-
-centralized secrets and environment configuration
-
-versioned API layer for web/mobile clients
-
-request tracing across agent stages
-
-token, latency, error-rate, and cost telemetry
-
-retries, timeouts, graceful degradation, and failure recovery
-
-deployment health checks and production observability
-
-Product experience
-
-course progress dashboard
-
-quizzes and automatic feedback
-
-flashcard generation
-
-project-based assignments
-
-downloadable learning plans
-
-lesson completion tracking
-
-instructor personas
-
-code execution for programming courses
-
-🌱 Why LearnFlow AI?
-
-A generic chatbot can answer a question.
-
-A learning system has to manage a journey.
-
-LearnFlow AI explores that distinction by separating:
-
-What should I learn?
+What should be taught?
         ↓
 How should it be organized?
         ↓
-How should it be explained?
+How should it be delivered?
         ↓
-Did the learner understand?
+What did the learner say?
         ↓
-What should come next?
+What should happen next?
 
-LearnFlow AI implements the planning, organization, and guided-instruction layers through a coordinated multi-agent workflow with explicit state and human turn-taking.
-
-Don't just answer the learner. Build the learning flow.
+Don't just answer the learner. Orchestrate the learning flow.
 
 <div align="center">
 
-LearnFlow AI
+Built by Ankita Khartmol
 
-Multi-Agent Learning · LLM Orchestration · Conversational AI · Curriculum Generation
+Multi-Agent Systems · LLM Orchestration · Conversational AI · Applied AI Engineering
 
 </div>
 
