@@ -1,791 +1,630 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=240&color=0:6C5CE7,45:7C4DFF,75:00B8D9,100:00B894&text=SchedMate&fontColor=ffffff&fontSize=72&fontAlignY=38&desc=Local-First%20Agentic%20AI%20for%20Intelligent%20Scheduling&descAlignY=60&descSize=20&animation=fadeIn" alt="SchedMate banner" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=venom&height=250&color=0:00C9A7,42:5B5FEF,100:C850C0&text=LearnFlow%20AI&fontColor=ffffff&fontSize=72&fontAlignY=41&desc=Multi-Agent%20Learning%20Orchestration%20System&descAlignY=63&descSize=21&animation=fadeIn" alt="LearnFlow AI banner" />
 
-### Natural-language scheduling powered by tool-calling agents, semantic memory, conflict detection, and real-time APIs.
+AI agents that plan a curriculum together — then a stateful instructor teaches it one stage at a time.
 
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Async%20API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![LangChain](https://img.shields.io/badge/LangChain-Agentic%20Tool%20Calling-1C3C3C)](https://www.langchain.com/)
-[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-000000?logo=ollama&logoColor=white)](https://ollama.com/)
-[![FAISS](https://img.shields.io/badge/FAISS-Semantic%20Memory-5B5FC7)](https://github.com/facebookresearch/faiss)
-[![SQLite](https://img.shields.io/badge/SQLite-Async%20Persistence-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![WebSocket](https://img.shields.io/badge/WebSocket-Real--Time%20Chat-00B8D9)](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
-[![Pytest](https://img.shields.io/badge/Pytest-Agent%20%26%20Calendar%20Tests-0A9EDC?logo=pytest&logoColor=white)](https://pytest.org/)
 
-**Agentic AI · Tool Calling · RAG · Conversational AI · Vector Search · Async Python · Timezone-Aware Scheduling · LLM Guardrails**
+
+Multi-Agent Systems · LLM Orchestration · Stateful AI · Curriculum Planning · Conversational AI · Prompt Engineering · Human-in-the-Loop
 
 </div>
 
----
+🎓 Overview
 
-## 🧠 What is SchedMate?
+LearnFlow AI is a multi-stage AI learning system that separates curriculum planning from instruction delivery.
 
-**SchedMate** is a local-first conversational scheduling agent designed to turn natural-language requests into reliable calendar actions.
+A learner provides a topic. A task-specification stage sharpens the learning objective, two role-constrained agents collaborate to design the course, a synthesis stage converts that discussion into a syllabus, and a dedicated TeachingGPT controller uses the syllabus plus conversation history to drive an interactive instructor.
 
-Instead of treating scheduling as a simple chatbot task, SchedMate separates **LLM reasoning** from **deterministic calendar execution**. The language model interprets intent and chooses a tool; typed application code handles date parsing, event resolution, conflict detection, persistence, and free-slot calculation.
+Learning Topic
+     ↓
+Task Specification
+     ↓
+Instructor ↔ Teaching Assistant Planning Loop
+     ↓
+Syllabus Synthesis
+     ↓
+Stateful TeachingGPT Controller
+     ↓
+Interactive Instructor
+     ↓
+Learner Feedback → Conversation Context → Next Stage
 
-Users can say things like:
+The central engineering idea is simple:
 
-```text
-"Schedule a design review tomorrow at 3 PM for 45 minutes."
+Planning what to teach and executing how to teach it are separate AI responsibilities.
 
-"Move my 6 PM meeting to Friday."
+⚡ 30-second engineering snapshot
 
-"What meetings do I have this afternoon?"
+AI systems layer
 
-"Find a free 30-minute slot tomorrow."
+Implementation
 
-"Cancel today's standup."
+Task refinement
 
-"I prefer meetings after 11 AM."
-```
+Dedicated LLM stage turns a broad topic into a concrete teaching objective of at most 50 words
 
-SchedMate maintains conversational context, remembers relevant scheduling preferences through vector memory, and includes a guardrail that prevents the assistant from claiming an event was changed when no scheduling tool actually succeeded.
+Multi-agent planning
 
----
+Instructor and Teaching Assistant agents exchange role-constrained messages for up to 5 planning turns
 
-## ⚡ 30-second engineering overview
+Curriculum synthesis
 
-| Capability | Implementation |
-|---|---|
-| **Agentic scheduling** | LangChain tool-calling agent orchestrating 5 deterministic scheduling tools |
-| **Local LLM inference** | Ollama-backed `ChatOllama`, configurable through environment settings |
-| **Semantic memory / RAG** | Session-scoped preferences and scheduling decisions embedded with Ollama and indexed in FAISS |
-| **Natural-language time understanding** | `dateparser` + `python-dateutil` + timezone-aware normalization |
-| **Conflict-aware calendar engine** | Overlap detection, free-slot discovery, duration preservation, and event mutation |
-| **Event resolution** | UUID lookup + fuzzy title matching + temporal fallback + nearest-time disambiguation |
-| **Real-time interface** | FastAPI REST endpoints and persistent WebSocket chat sessions |
-| **Persistence** | Async SQLite storage for events, conversation history, and user preferences |
-| **Reliability controls** | Pydantic tool schemas, ambiguity rules, execution verification, hallucination guard |
-| **Observability** | Structured JSON application logs with module, level, timestamp, and exception context |
+A separate summarization agent converts the complete planning dialogue into a course syllabus
 
----
+Stateful instruction
 
-# 🎯 Design goal
+TeachingGPT owns the generated syllabus, current teaching task, and accumulated conversation history
 
-Scheduling assistants fail when the model is allowed to **invent state**.
+Instruction control
 
-SchedMate is built around a stronger contract:
+Prompt contract enforces syllabus order, one-stage-at-a-time delivery, explanations, examples, and formulas where relevant
 
-> **The LLM decides what action should happen. Deterministic tools decide whether it actually can happen.**
+Human-in-the-loop
 
-That gives the system a clean separation between:
+<END_OF_TURN> explicitly returns control to the learner before the next teaching stage
 
-```text
-Natural-language reasoning
-        ↓
-Structured tool invocation
-        ↓
-Validated scheduling logic
-        ↓
-Persistent calendar state
-        ↓
-Verified user-facing response
-```
+Application layer
 
----
+Gradio exposes a syllabus builder and a conversational AI Instructor interface
 
-# 🏗️ System architecture
+Model orchestration
 
-```mermaid
+LangChain ChatOpenAI, message templates, LLMChain, and a custom Chain controller separate model calls from UI logic
+
+🧠 AI workflow
+
+LearnFlow AI is implemented as a sequence of specialized model interactions rather than one monolithic chatbot prompt.
+
+flowchart LR
+    U[User Topic] --> TS[Task Specifier]
+    TS --> TA[Teaching Assistant Agent]
+    TA <--> IN[Instructor Agent]
+    TA --> H[Planning History]
+    IN --> H
+    H --> SY[Syllabus Synthesizer]
+    SY --> C[Generated Curriculum]
+    C --> TG[TeachingGPT Controller]
+    U --> TG
+    TG --> IA[Interactive Instructor]
+    IA --> R[Learner Response]
+    R --> M[Conversation History]
+    M --> IA
+
+Why this decomposition matters
+
+The code assigns a clear responsibility to each stage:
+
+Task Specifier — removes ambiguity from the initial learning request.
+
+Teaching Assistant — decomposes the curriculum and issues one instruction at a time.
+
+Instructor — generates concrete teaching content and examples in response to each instruction.
+
+Syllabus Synthesizer — converts the planning exchange into the final course structure.
+
+TeachingGPT — controls runtime instruction using syllabus state and learner conversation history.
+
+This creates explicit agent boundaries, state handoffs, and prompt contracts that are easier to inspect than a single large prompt.
+
+1️⃣ Task specification
+
+The first LLM stage improves the raw user request before curriculum generation begins.
+
+Example input:
+
+Reinforcement Learning
+
+The application converts it into a teaching task:
+
+Generate a course syllabus to teach the topic: Reinforcement Learning
+
+A dedicated task-specification agent then makes the request more concrete while keeping the result to 50 words or fewer.
+
+flowchart LR
+    A[Raw Topic] --> B[Task Specifier]
+    B --> C[Bounded Learning Objective]
+    C --> D[Planning Agents]
+
+This stage gives the downstream planning loop a more precise objective than the topic name alone.
+
+2️⃣ Multi-agent curriculum planning
+
+The curriculum is generated through collaboration between two role-specific agents.
+
+👨‍🏫 Instructor agent
+
+Its system contract requires it to:
+
+remain in the Instructor role,
+
+respond to one instructional request at a time,
+
+produce concrete solutions,
+
+explain its solution,
+
+include useful implementations/examples,
+
+end each planning response with Next request.
+
+🧑‍💻 Teaching Assistant agent
+
+Its system contract requires it to:
+
+remain in the Teaching Assistant role,
+
+issue one instruction at a time,
+
+attach optional input when needed,
+
+continue decomposing the task until completion,
+
+emit <TASK_DONE> only when the planning task is solved.
+
+The planning loop is bounded by:
+
+chat_turn_limit = 5
+
+sequenceDiagram
+    participant TA as Teaching Assistant
+    participant IN as Instructor
+    participant SY as Syllabus Synthesizer
+
+    TA->>IN: Instruction + optional input
+    IN-->>TA: Detailed teaching solution
+    TA->>IN: Next curriculum request
+    IN-->>TA: Expanded instructional content
+    Note over TA,IN: Bounded to 5 planning turns
+    TA->>SY: Planning history
+    IN->>SY: Planning history
+    SY-->>SY: Synthesize final syllabus
+
+The bounded loop prevents curriculum planning from becoming an uncontrolled open-ended agent conversation.
+
+3️⃣ Syllabus synthesis
+
+Every Instructor / Teaching Assistant exchange is appended to conversation_history.
+
+After the planning loop completes, LearnFlow AI creates a separate synthesis agent and asks it to convert that history into a course-syllabus format.
+
+Agent collaboration history
+          ↓
+Dedicated synthesis prompt
+          ↓
+Generated course syllabus
+
+The generated syllabus becomes a runtime artifact that is passed to the teaching controller rather than discarded after generation.
+
+4️⃣ Stateful teaching controller
+
+The teaching phase is managed by a custom LangChain controller:
+
+class TeachingGPT(Chain, BaseModel):
+    syllabus: str
+    conversation_topic: str
+    conversation_history: List[str]
+
+When a syllabus is generated, the application initializes the runtime state:
+
+teaching_agent.seed_agent(syllabus, task)
+
+TeachingGPT therefore maintains three explicit pieces of instructional state:
+
+Generated syllabus
+      +
+Teaching objective
+      +
+Learner / instructor conversation history
+
+That state is supplied to the instructor chain on every instructional turn.
+
+5️⃣ Syllabus-constrained instruction
+
+The instructor is not asked to teach freely.
+
+Its runtime prompt explicitly instructs the model to:
+
+follow the syllabus in its original order,
+
+avoid reordering topics,
+
+explain definitions,
+
+include formulas where relevant,
+
+provide examples,
+
+use previous conversation history,
+
+generate only one teaching stage at a time,
+
+return control to the learner before continuing.
+
 flowchart TD
-    USER[User] --> UI[Web Chat UI]
-    USER --> REST[REST API]
-    UI --> WS[WebSocket]
+    S[Syllabus] --> P[Instructor Prompt]
+    T[Teaching Objective] --> P
+    H[Conversation History] --> P
+    P --> LLM[OpenAI Chat Model]
+    LLM --> O[One Teaching Stage]
+    O --> END[END_OF_TURN]
+    END --> USER[Learner Response]
+    USER --> H
 
-    REST --> RUNNER[AgentRunner]
-    WS --> RUNNER
+This makes the generated curriculum an active control input for the teaching loop instead of static text displayed once in the UI.
 
-    RUNNER --> HISTORY[(Conversation History)]
-    RUNNER --> RETRIEVE[Retrieve Relevant Memory]
+🔄 Human-in-the-loop execution
 
-    RETRIEVE --> FAISS[(FAISS Vector Index)]
-    FAISS --> EMB[Ollama Embeddings]
+Every learner message is added to conversation_history before the instructor generates the next step.
 
-    HISTORY --> PROMPT[Context-Aware Agent Prompt]
-    RETRIEVE --> PROMPT
-    PROMPT --> LLM[Ollama Local LLM]
+The teaching prompt requires generated responses to terminate with:
 
-    LLM --> TOOLS{Tool Calling}
+<END_OF_TURN>
 
-    TOOLS --> LIST[List Events]
-    TOOLS --> CREATE[Create Event]
-    TOOLS --> UPDATE[Update Event]
-    TOOLS --> DELETE[Delete Event]
-    TOOLS --> FREE[Find Free Slots]
+This creates a controlled interaction cycle:
 
-    LIST --> CAL[Calendar Service]
-    CREATE --> CAL
-    UPDATE --> CAL
-    DELETE --> CAL
-    FREE --> CAL
+Instructor explanation
+      ↓
+<END_OF_TURN>
+      ↓
+Learner response / question
+      ↓
+Conversation state updated
+      ↓
+Next syllabus-aligned stage
 
-    CAL --> TIME[Timezone + NL Time Parser]
-    CAL --> RESOLVE[Fuzzy / Temporal Event Resolution]
-    CAL --> CONFLICT[Conflict Detection]
-    CAL --> DB[(Async SQLite)]
+The model therefore receives the evolving learner interaction as context rather than treating every message as an isolated query.
 
-    RUNNER --> GUARD[Action Verification / Hallucination Guard]
-    GUARD --> USER
+🏗️ System architecture
 
-    RUNNER --> INGEST[Preference + Decision Ingestion]
-    INGEST --> FAISS
-```
+flowchart TD
+    UI[Gradio UI]
 
----
+    UI --> TOPIC[Topic Input]
+    TOPIC --> SPEC[Task Specification Agent]
 
-# 🤖 Agent workflow
+    SPEC --> AP[Instructor Prompt Contract]
+    SPEC --> UP[Teaching Assistant Prompt Contract]
 
-The system prompt defines an explicit reasoning workflow for every scheduling request.
+    AP --> A1[Instructor DiscussAgent]
+    UP --> A2[Teaching Assistant DiscussAgent]
 
-```mermaid
-flowchart LR
-    A[User Request] --> B[Identify Intent]
-    B --> C{Enough Information?}
-    C -->|No| D[Ask Clarifying Question]
-    C -->|Yes| E[Resolve Target Event]
-    E --> F[Call Typed Tool]
-    F --> G{Tool Success?}
-    G -->|No| H[Return Failure / Conflict]
-    G -->|Yes| I[Persist State]
-    I --> J[Confirm Actual Result]
-```
+    A1 <--> A2
+    A1 --> HIST[Collaboration History]
+    A2 --> HIST
 
-### Supported intents
+    HIST --> SUM[Syllabus Synthesis Agent]
+    SUM --> SYL[Generated Syllabus]
 
-| Intent | Examples | Tool |
-|---|---|---|
-| **Create** | schedule, book, add | `create_event` |
-| **Update** | move, reschedule, rename, extend | `update_event` |
-| **Delete** | cancel, remove | `delete_event` |
-| **Query** | show my meetings, what's on today | `list_events` |
-| **Search** | find free time, when am I available | `find_free_slots` |
-| **Preference** | avoid mornings, prefer after 11 | semantic memory ingestion |
+    SYL --> CTRL[TeachingGPT Controller]
+    TOPIC --> CTRL
 
-The agent is explicitly instructed to **ask instead of guess** when the request is ambiguous.
+    CTRL --> CHAIN[InstructorConversationChain]
+    CHAIN --> LLM[OpenAI Chat Model]
+    LLM --> RESP[Single Teaching Stage]
+    RESP --> CHAT[Gradio Chatbot]
 
-For example:
+    CHAT --> HUMAN[Learner Message]
+    HUMAN --> MEM[Conversation History]
+    MEM --> CHAIN
 
-```text
-"Reschedule it for 1 hour"
-```
+The repository also includes its original architecture visualization:
 
-could mean:
+<div align="center">
+  <img src="diagram.png" width="88%" alt="LearnFlow AI original architecture diagram" />
+</div>
 
-- make the meeting one hour long, or
-- move the meeting by one hour.
+🧩 Prompt contracts as system boundaries
 
-SchedMate's agent policy requires clarification before mutating calendar state.
+The implementation uses several prompt layers with different responsibilities rather than sharing one generic system prompt across the application.
 
----
+Prompt layer
 
-# 🛠️ Deterministic scheduling tools
+Responsibility
 
-SchedMate exposes five typed LangChain tools.
+Task Specification
 
-### `create_event`
+Transform a broad topic into a more specific instructional task
 
-Creates an event with:
+Instructor Inception Prompt
 
-- title,
-- start/end time,
-- default or explicit duration,
-- attendees,
-- description.
+Define Instructor identity and response contract during planning
 
-Before persistence, the calendar checks for overlapping events.
+Teaching Assistant Inception Prompt
 
-### `update_event`
+Define Teaching Assistant identity and task-decomposition contract
 
-Supports changes to:
+Syllabus Synthesis Prompt
 
-- title,
-- start/end time,
-- attendees,
-- description.
+Convert planning history into a curriculum artifact
 
-If only the start time changes, the original event duration is preserved automatically.
+Teaching Instructor Prompt
 
-### `delete_event`
+Execute the syllabus using runtime conversation state
 
-Resolves an event by ID, fuzzy title, or temporal reference before deleting it.
+These prompt contracts provide behavioral separation between planning, synthesis, and teaching.
 
-### `list_events`
+They are prompt-level controls rather than hard runtime guarantees; production schema validation and automated evaluation would be the next reliability layer.
 
-Returns events inside a requested time window.
+💬 Interactive application
 
-### `find_free_slots`
+The Gradio interface exposes two separate product flows.
 
-Searches available windows inside the configured workday.
+📚 Syllabus Builder
 
-Current working-hours policy:
+The learner enters a topic and selects:
 
-```text
-09:00 → 18:00
-```
+Build the Bot!!!
 
----
+The application then:
 
-# 🔎 Event resolution beyond exact matching
+Topic input
+   ↓
+Generate teaching task
+   ↓
+Run multi-agent curriculum planning
+   ↓
+Generate syllabus
+   ↓
+Seed TeachingGPT state
+   ↓
+Display syllabus
 
-Real users rarely repeat exact calendar titles.
+🤖 AI Instructor
 
-SchedMate therefore resolves event references in stages:
+The second tab provides a conversational teaching interface.
 
-```text
-UUID lookup
-    ↓
-Fuzzy title matching
-    ↓
-Temporal fallback
-    ↓
-Nearest-time disambiguation
-```
+Each learner message is sent to TeachingGPT, which generates the next syllabus-aligned response. The Gradio UI streams the generated text character-by-character for a conversational experience.
 
-Examples:
+The application also catches OpenAI quota errors and converts them into a clearer user-facing message.
 
-```text
-"cancel design review"
-"move today's meeting"
-"change my 6pm meet"
-"reschedule tomorrow's call"
-```
+🔬 Agent implementation
 
-Fuzzy matching uses `thefuzz`, while temporal references such as `today`, `tomorrow`, weekdays, and dayparts are converted into timezone-aware ranges.
+Curriculum-generation agents share a lightweight reusable abstraction:
 
-This gives the tool layer a practical entity-resolution strategy instead of relying entirely on the LLM to identify the exact database record.
+class DiscussAgent:
+    def __init__(self, system_message, model):
+        self.system_message = system_message
+        self.model = model
+        self.init_messages()
 
----
+Each DiscussAgent maintains its own stored message history:
 
-# 🌍 Timezone-aware natural-language scheduling
+System role
+   +
+Incoming message
+   +
+Generated response
+   +
+Next incoming message
+   ...
 
-SchedMate normalizes natural language with:
+This abstraction is used across task specification, curriculum role-play, and syllabus synthesis.
 
-- `dateparser`
-- `python-dateutil`
-- `pytz`
+The teaching phase uses a separate custom Chain controller because it needs different runtime state and execution behavior.
 
-Supported styles include:
+⚙️ Engineering highlights
 
-```text
-tomorrow at 3pm
-next Friday at 11
-in 2 hours
-this afternoon
-Monday morning
-2026-08-15T14:30:00
-```
+Separation of planning and execution
 
-Internally, parsed times are stored as timezone-aware values.
+Curriculum generation and curriculum delivery are implemented as separate phases with an explicit syllabus handoff.
 
-Daypart mappings currently include:
+Bounded agent collaboration
 
-```text
-Morning    09:00 – 12:00
-Afternoon  12:00 – 17:00
-Evening    17:00 – 21:00
-```
+The planning loop has a fixed maximum of 5 turns rather than allowing open-ended agent-to-agent generation.
 
-The default timezone is configurable and currently defaults to:
+Explicit conversational state
 
-```text
-America/Los_Angeles
-```
+TeachingGPT owns the syllabus, learning objective, and accumulated conversation history.
 
----
+Role-constrained agents
 
-# 🧠 Long-term scheduling memory with RAG
+Instructor and Teaching Assistant prompts explicitly prohibit role switching and define message formats for each role.
 
-SchedMate detects preference-like statements such as:
+Learner-controlled progression
 
-```text
-"I prefer meetings in the morning."
-"Avoid meetings on Mondays."
-"Never schedule before 9 AM."
-"Keep meetings under 30 minutes."
-```
+Instruction proceeds one stage at a time with an explicit end-of-turn marker.
 
-When a preference is detected, it is stored in two places:
+Model / UI separation
 
-1. **SQLite** — durable preference record
-2. **FAISS** — semantic representation for retrieval
+The LLM workflow lives in dedicated Python modules while run.py focuses on Gradio interaction and application wiring.
 
-The memory pipeline is:
+User-facing error handling
 
-```mermaid
-flowchart LR
-    U[User Message] --> D{Preference?}
-    D -->|Yes| SQL[(SQLite)]
-    D -->|Yes| E[Ollama Embedding]
-    E --> V[(FAISS)]
-    Q[Future Request] --> QE[Query Embedding]
-    QE --> V
-    V --> C[Top Relevant Session Context]
-    C --> P[Agent Prompt]
-```
+OpenAI quota failures are intercepted and converted into a readable application response.
 
-Retrieval is scoped by `session_id`, helping isolate one conversation's remembered context from another.
+🛠️ Technology stack
 
-Scheduling decisions can also be embedded as contextual memory for future recommendations.
+Layer
 
----
+Technology
 
-# 🛡️ Guardrails against false actions
+Language
 
-A scheduling agent should never tell a user:
+Python 3.10+
 
-```text
-"Your meeting has been rescheduled."
-```
+LLM orchestration
 
-unless the event was actually updated.
+LangChain
 
-SchedMate therefore inspects the agent's intermediate tool steps after generation.
+Model provider
 
-If the final LLM response claims a create/update/delete action succeeded **without a corresponding tool execution**, the response is replaced with a safe clarification message.
+OpenAI Chat Models
 
-This creates a second reliability layer:
+Agent abstraction
 
-```text
-LLM response
-    +
-Tool execution trace
-    ↓
-Consistency check
-    ↓
-Verified response
-```
+Custom DiscussAgent
 
-This is especially important for tool-using agents where natural-language confidence does not guarantee real state mutation.
+Teaching controller
 
----
+Custom LangChain Chain + Pydantic state
 
-# 💬 Real-time conversational interface
+Prompting
 
-SchedMate exposes both REST and WebSocket interfaces.
+LangChain system/human message templates + PromptTemplate
 
-### REST
+Application UI
 
-```text
-GET  /api/health
-GET  /api/events
-POST /api/chat
-```
+Gradio Blocks
 
-Example:
+Runtime context
 
-```json
-POST /api/chat
+In-memory Python conversation history
 
-{
-  "session_id": "demo-user-1",
-  "message": "Find a free 30-minute slot tomorrow",
-  "timezone": "America/Los_Angeles"
-}
-```
+Development tooling
 
-### WebSocket
+setuptools, Black, pre-commit configuration
 
-```text
-/ws?session_id=<session>
-```
+The repository currently pins:
 
-The WebSocket layer:
+langchain==0.0.208
+openai==0.27.8
+pydantic==1.10.13
+numpy==1.26.4
+gradio==3.41.2
 
-- keeps a persistent conversation session,
-- reuses the `AgentRunner`,
-- accepts client timezone information,
-- returns structured action metadata,
-- reports processing errors without dropping application state.
+📁 Repository structure
 
-The browser UI also persists the session ID locally and refreshes the event list after calendar mutations.
-
----
-
-# 🗄️ Persistence model
-
-SchedMate uses asynchronous SQLite access through `aiosqlite`.
-
-```mermaid
-erDiagram
-    EVENTS {
-        string id PK
-        string title
-        datetime start_time
-        datetime end_time
-        json attendees
-        string description
-        datetime created_at
-    }
-
-    CONVERSATIONS {
-        string id PK
-        string session_id
-        string role
-        string content
-        datetime timestamp
-    }
-
-    PREFERENCES {
-        string id PK
-        string session_id
-        string content
-        datetime created_at
-    }
-```
-
-Indexes are created for:
-
-- event time ranges,
-- conversation session + timestamp,
-- preference session.
-
----
-
-# ⚙️ Reliability and engineering choices
-
-### Typed tool contracts
-
-Every scheduling tool has a dedicated **Pydantic input schema**, giving the agent an explicit function contract.
-
-### Async-first backend
-
-FastAPI, WebSockets, SQLite calls, tools, agent execution, and memory operations all use asynchronous interfaces.
-
-### Structured logging
-
-The application emits compact JSON logs containing:
-
-```text
-timestamp
-log level
-module
-message
-exception context
-```
-
-This makes logs easier to aggregate and inspect than ad-hoc print statements.
-
-### Session-scoped context
-
-Conversation history and semantic memory are keyed by `session_id`.
-
-### Conflict-aware writes
-
-Create and time-changing update operations validate event overlap before committing.
-
-### Local-first AI
-
-The LLM and embedding models run through Ollama, allowing the current architecture to operate without sending scheduling conversations to a hosted model API.
-
----
-
-# 🎨 Built-in web experience
-
-The repository includes a responsive single-page scheduling interface with:
-
-- real-time connection status,
-- WebSocket chat,
-- conversation bubbles,
-- agent action indicators,
-- live calendar sidebar,
-- event detail modal,
-- attendee display,
-- responsive mobile layout,
-- quick scheduling guidance.
-
-The UI is intentionally lightweight so the engineering focus remains on the agent and orchestration layer.
-
----
-
-# 🧪 Test coverage
-
-The repository includes Pytest coverage for important deterministic behaviors.
-
-### Calendar tests
-
-- event creation,
-- conflict detection,
-- adjacent non-conflicting events,
-- event listing,
-- deletion,
-- fuzzy event matching,
-- free-slot discovery.
-
-### Tool tests
-
-- create-event tool execution,
-- list-events tool execution,
-- delete-event tool execution,
-- free-slot tool execution.
-
-### Time parsing tests
-
-- ISO datetime parsing,
-- relative dates,
-- relative hours,
-- invalid inputs,
-- timezone awareness,
-- daypart ranges,
-- day boundaries,
-- display formatting.
-
-### Agent-memory tests
-
-- preference detection patterns,
-- rejection of ordinary scheduling requests as preferences.
-
----
-
-# 📦 Technology stack
-
-| Layer | Technology |
-|---|---|
-| **Language** | Python |
-| **API framework** | FastAPI |
-| **Real-time transport** | WebSockets |
-| **Agent orchestration** | LangChain |
-| **LLM runtime** | Ollama / ChatOllama |
-| **Default LLM** | `llama3.1:8b` |
-| **Embeddings** | Ollama `nomic-embed-text` |
-| **Vector memory** | FAISS |
-| **Persistence** | SQLite + `aiosqlite` |
-| **Schema validation** | Pydantic |
-| **Natural-language time parsing** | dateparser, python-dateutil |
-| **Timezone handling** | pytz |
-| **Fuzzy matching** | thefuzz |
-| **Testing** | Pytest + pytest-asyncio |
-| **Frontend** | HTML, CSS, vanilla JavaScript |
-
----
-
-# 📁 Project structure
-
-```text
-Schdmate/
-├── app/
-│   ├── main.py
-│   │
-│   ├── api/
-│   │   ├── routes.py              # REST API
-│   │   └── websocket.py           # Real-time chat transport
-│   │
-│   ├── agent/
-│   │   ├── agent.py               # AgentRunner + execution guard
-│   │   ├── prompts.py             # Agent policy / reasoning rules
-│   │   ├── tools.py               # Deterministic scheduling tools
-│   │   └── schemas.py             # Pydantic tool contracts
-│   │
-│   ├── calendar/
-│   │   └── mock_calendar.py       # SQLite-backed calendar abstraction
-│   │
-│   ├── rag/
-│   │   ├── ingest.py              # Preference / decision ingestion
-│   │   ├── memory_store.py        # FAISS + Ollama embeddings
-│   │   └── retriever.py           # Session-scoped semantic retrieval
-│   │
-│   ├── storage/
-│   │   ├── db.py                  # Async persistence
-│   │   └── models.py              # Domain models
-│   │
-│   ├── core/
-│   │   ├── config.py              # Environment-based settings
-│   │   ├── logger.py              # JSON logging
-│   │   └── time_utils.py          # NLP datetime utilities
-│   │
-│   └── static/
-│       └── index.html              # Scheduling dashboard
-│
-├── tests/
-│   ├── test_agent.py
-│   ├── test_calendar.py
-│   ├── test_tools.py
-│   └── test_time_utils.py
-│
-├── faiss_index/
+LearnFlow-AI/
+├── README.md
+├── diagram.png                 # Original architecture diagram
 ├── requirements.txt
-└── pytest.ini
-```
+├── setup.py
+├── pyproject.toml
+├── Makefile
+│
+└── src/
+    ├── run.py                  # Gradio application + workflow wiring
+    ├── generating_syllabus.py # Task specification + multi-agent syllabus planning
+    ├── teaching_agent.py      # Stateful TeachingGPT instructional controller
+    └── EduGPT.ipynb           # Notebook prototype / experimentation
 
----
+🚀 Run locally
 
-# 🚀 Run locally
+1. Clone
 
-## 1. Clone the repository
+git clone https://github.com/Ankita2525/LearnFlow-AI.git
+cd LearnFlow-AI
 
-```bash
-git clone https://github.com/Ankita2525/Schdmate.git
-cd Schdmate
-```
+2. Create an environment
 
-## 2. Create a virtual environment
-
-```bash
-python3 -m venv .venv
+python3.10 -m venv .venv
 source .venv/bin/activate
-```
 
 On Windows:
 
-```bash
 .venv\Scripts\activate
-```
 
-## 3. Install dependencies
+3. Install dependencies
 
-```bash
 pip install -r requirements.txt
-```
 
-## 4. Install and start Ollama
+4. Configure the OpenAI key
 
-Pull the models used by the current default configuration:
+The current implementation reads .env directly and expects:
 
-```bash
-ollama pull llama3.1:8b
-ollama pull nomic-embed-text
-```
+OPENAI_API_KEY=your_openai_api_key
 
-Start Ollama if it is not already running:
+Do not commit real credentials.
 
-```bash
-ollama serve
-```
+5. Start the application
 
-## 5. Optional environment configuration
+python src/run.py
 
-Create `.env` in the repository root to override defaults:
+Gradio prints the local application URL in the terminal.
 
-```env
-LLM_MODEL=llama3.1:8b
-EMBEDDING_MODEL=nomic-embed-text
-OLLAMA_BASE_URL=http://localhost:11434
+✅ Implemented capabilities
 
-DATABASE_PATH=./schedmate.db
-FAISS_INDEX_PATH=./faiss_index
+topic-driven learning workflow
 
-DEFAULT_TIMEZONE=America/Los_Angeles
-LOG_LEVEL=INFO
-```
+LLM-based task specification
 
-## 6. Start SchedMate
+role-constrained Instructor and Teaching Assistant agents
 
-```bash
-uvicorn app.main:app --reload
-```
+bounded 5-turn multi-agent curriculum planning
 
-Open:
+dedicated syllabus synthesis stage
 
-```text
-http://localhost:8000
-```
+generated syllabus handoff into runtime instruction
 
-Interactive FastAPI docs:
+custom stateful TeachingGPT controller
 
-```text
-http://localhost:8000/docs
-```
+syllabus-aware instructor prompting
 
----
+conversation-history-aware responses
 
-# 🔌 Current implementation boundary
+one-stage-at-a-time teaching behavior
 
-The current repository focuses on the **agent orchestration and scheduling intelligence layer**.
+explicit human-in-the-loop turn boundaries
 
-The calendar adapter is presently backed by local SQLite rather than a third-party calendar provider. This makes the core scheduling behavior reproducible and keeps external OAuth/provider complexity outside the agent logic.
+Gradio syllabus-generation interface
 
-That separation also creates a clean integration point for real providers.
+Gradio AI Instructor chat interface
 
----
+character-streamed response presentation
 
-# 🏭 Production evolution
+OpenAI quota error handling
 
-The next stage of SchedMate can extend the existing core into a production scheduling service without changing the agent/tool contract.
+modular Python implementation plus notebook prototype
 
-### Calendar integrations
+📈 Production evolution
 
-- Google Calendar API
-- Microsoft Graph / Outlook
-- provider-specific OAuth 2.0
-- multi-calendar availability aggregation
+The current code establishes the multi-agent planning + stateful instruction core. A production deployment would naturally harden that architecture with:
 
-### Platform architecture
+structured syllabus schemas and validation,
 
-- PostgreSQL for multi-user persistence
-- Redis for ephemeral conversation/session state
-- background jobs for reminders and calendar synchronization
-- authenticated user/workspace model
-- rate limiting and API quotas
-- idempotency keys for calendar mutations
+persistent learner/session storage,
 
-### Agent reliability
+authentication and multi-user isolation,
 
-- confirmation policies for destructive actions
-- structured agent traces
-- tool-call latency/error metrics
-- evaluation datasets for intent and tool selection
-- prompt regression tests
-- retrieval quality evaluation
-- human-in-the-loop approval for sensitive actions
+RAG over trusted course material with citations,
 
-### Scheduling intelligence
+automated syllabus and instruction-quality evaluations,
 
-- attendee availability negotiation
-- recurring meetings
-- travel/buffer time
-- configurable working hours
-- priority-aware optimization
-- team preference modeling
-- cross-timezone scheduling
+model/prompt regression testing,
 
-### Deployment & operations
+traces for agent handoffs and model calls,
 
-- containerization
-- CI/CD
-- health/readiness probes
-- production observability
-- secret management
-- scalable vector persistence
+latency, token, cost, and failure telemetry,
 
----
+retries/timeouts and graceful failure handling,
 
-# 💡 Why SchedMate?
+asynchronous long-running curriculum generation,
 
-The interesting part of scheduling is not generating a sentence like:
+provider-independent model routing,
 
-> “Sure, I scheduled that.”
+deployment and observability infrastructure.
 
-The real problem is reliably connecting language to state:
+These are architectural extensions; they are not claimed as implemented in the current repository.
 
-```text
-Intent
-  +
-Conversation context
-  +
-User preferences
-  +
-Time interpretation
-  +
-Entity resolution
-  +
-Conflict detection
-  +
-Verified tool execution
-```
+🌱 Why LearnFlow AI?
 
-SchedMate treats those as separate engineering concerns and composes them into one conversational agent.
+A generic chatbot answers the next question.
 
-> **Natural language in. Verified calendar state out.**
+A learning system has to coordinate a sequence:
 
----
+Define the learning objective
+        ↓
+Plan the curriculum
+        ↓
+Synthesize the learning path
+        ↓
+Teach one stage
+        ↓
+Observe learner feedback
+        ↓
+Continue with context
+
+LearnFlow AI turns that sequence into an explicit multi-agent workflow with role separation, state handoffs, and learner-controlled progression.
+
+Don't just answer the learner. Build the learning flow.
 
 <div align="center">
 
-### Built by Ankita Khartmol
+LearnFlow AI
 
-**Agentic AI · RAG · Backend Systems · Conversational AI**
+Multi-Agent Systems · LLM Orchestration · Stateful Instruction · Human-in-the-Loop Learning
 
 </div>
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=110&color=0:00B894,50:00B8D9,100:6C5CE7&section=footer" alt="footer" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=110&color=0:C850C0,50:5B5FEF,100:00C9A7&section=footer" alt="LearnFlow AI footer" />
