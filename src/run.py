@@ -21,8 +21,8 @@ envs_dict = {
 os.environ["OPENAI_API_KEY"] = envs_dict["OPENAI_API_KEY"]
 
 with gr.Blocks() as demo:
-    gr.Markdown("# Your AI Instructor")
-    with gr.Tab("Input Your Information"):
+    gr.Markdown("# LearnFlow AI")
+    with gr.Tab("Syllabus Builder"):
         def _format_runtime_error(err: Exception) -> str:
             msg = str(err)
             if "You exceeded your current quota" in msg:
@@ -45,15 +45,15 @@ with gr.Blocks() as demo:
                 return _format_runtime_error(err)
 
         text_input = gr.Textbox(
-            label="State the name of topic you want to learn:"
+            label="What would you like to learn?"
         )
-        text_output = gr.Textbox(label="Your syllabus will be showed here:")
-        text_button = gr.Button("Build the Bot!!!")
+        text_output = gr.Textbox(label="Generated syllabus")
+        text_button = gr.Button("Generated syllabus")
         text_button.click(perform_task, text_input, text_output)
     with gr.Tab("AI Instructor"):
         #       inputbox = gr.Textbox("Input your text to build a Q&A Bot here.....")
         chatbot = gr.Chatbot()
-        msg = gr.Textbox(label="What do you concern about?")
+        msg = gr.Textbox(label="Ask a question or continue the lesson")
         clear = gr.Button("Clear")
 
         def user(user_message, history):
