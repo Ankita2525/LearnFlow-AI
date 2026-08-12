@@ -49,7 +49,7 @@ class DiscussAgent:
 
 
 # import your OpenAI key (put in your .env file)
-with open(".env", "r") as f:
+with open("load_dotenv()", "r") as f:
     env_file = f.readlines()
 envs_dict = {
     key.strip("'"): value.strip("\n")
