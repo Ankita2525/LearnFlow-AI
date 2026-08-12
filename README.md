@@ -2,7 +2,7 @@
 
 <img width="100%" src="https://capsule-render.vercel.app/api?type=venom&height=250&color=0:00C9A7,42:5B5FEF,100:C850C0&text=LearnFlow%20AI&fontColor=ffffff&fontSize=72&fontAlignY=41&desc=Multi-Agent%20Learning%20Orchestration%20System&descAlignY=63&descSize=21&animation=fadeIn" alt="LearnFlow AI banner" />
 
-AI agents that plan a curriculum together — then a stateful instructor teaches it one stage at a time.
+AI agents that plan a curriculum together - then a stateful instructor teaches it one stage at a time.
 
 
 
