@@ -39,7 +39,8 @@ One lesson stage at a time
         ↓
 Learner responds → context updates → teaching continues
 
-```flowchart LR
+```mermaid
+flowchart LR
     A[Topic] --> B[Task Specifier]
     B --> C[Teaching Assistant]
     C <--> D[Instructor]
@@ -48,7 +49,8 @@ Learner responds → context updates → teaching continues
     E --> F[TeachingGPT]
     F --> G[Interactive Lesson]
     G --> H[Learner Feedback]
-    H --> F```
+    H --> F
+```
 
 🤖 Meet the AI team
 
@@ -113,7 +115,8 @@ Each teaching stage ends with <code>&lt;END_OF_TURN&gt;</code>, returning contro
 
 Multi-agent planning
 
-```sequenceDiagram
+```mermaid
+    sequenceDiagram
     participant TA as Teaching Assistant
     participant IN as Instructor
     participant SY as Syllabus Synthesizer
@@ -125,7 +128,8 @@ Multi-agent planning
     Note over TA,IN: Up to 5 collaboration turns
     TA->>SY: Full planning history
     IN->>SY: Full planning history
-    SY-->>SY: Build final syllabus```
+    SY-->>SY: Build final syllabus
+    ```
 
 Stateful teaching
 
